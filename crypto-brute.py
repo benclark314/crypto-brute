@@ -5,10 +5,16 @@ import time
 ##########################################
 from unittest import result
 
+def get_res(ciphertext, indexArray):
+    result = ""
+    for x in range(0, len(ciphertext)):
+        index = indexArray.index(x)
+        result = result + ciphertext[index]
+    return result    
 
-def compute_skip(inputstring, skipNumber):
+def get_skip_indices(inputstring, skipNumber):
     completedNumbers = []
-    resultstring = ""
+    resultIndices = []
     for x in range(0, len(inputstring)):
         index = skipNumber*x % len(inputstring)
 
@@ -20,8 +26,8 @@ def compute_skip(inputstring, skipNumber):
 
             completedNumbers.append(index)
         if(index < len(inputstring)):
-            resultstring = resultstring + inputstring[index]
-    return resultstring
+            resultIndices.append(index)
+    return resultIndices
 
 def find_sub_words(english_words, ciphertext):
     containedWords = []
@@ -46,40 +52,11 @@ starttime = time.perf_counter()
 
 
 
-#To run this program, put the ciphertext in ciphertext.txt 
-# if using words_alpha.txt, ciphertext should be all lower case
-# if using scrabble_dictionary.txt, ciphertext should be ALL CAPS
+#Attempt to reverse, essentially rotate the index mapping by 90 degrees clockwise.
+#Attempted to accomplish this by using arrays of indices, and then mapping ciphertext to index of index in that array.
+#.......didn't work!
 
 
-
-
-
-
-
-
-#SIMPLE- JUST SKIP, NO SHIFT:
-# english_words = load_words()
-# f = open("ciphertext.txt", "r")
-# ciphertext = f.read()
-# f = open("results.txt", "a")
-# summary = []
-# f.write("Original String: " + ciphertext + "\n")
-# for x in range(1, len(ciphertext)):
-#     res = compute_skip(ciphertext, x)
-#     f.write("Skip by " + str(x) + " results in: " + res + "\n")
-#     words = find_sub_words(english_words, res)
-#     wordcount = len(words)
-#     f.write("\tTransform resulted in " + str(wordcount) + " words.\n")
-#     summary.append("Skip by " + str(x) + " contains " + str(wordcount) + " English words.\n")
-#     for y in range(0, wordcount):
-#         f.write("\t" + words[y] + "\n")
-# for z in summary:
-#     f.write(z)
-# f.close()
-
-
-
-#BOTH SKIP AND SHIFT:
 english_words = load_words()
 f = open("ciphertext.txt", "r")
 ciphertext = f.read()
@@ -91,8 +68,17 @@ for w in range(0, len(ciphertext)):
         #Shift the ciphertext over one to the right, bringing rightmost element to front:
         ciphertext = ciphertext[-1] + ciphertext[0: len(ciphertext) - 1]
     for x in range(1, len(ciphertext)):
-        res = compute_skip(ciphertext, x)
-        f.write("Shift by " + str(w) + " and skip by " + str(x) + " results in: " + res + "\n")
+        reso = get_skip_indices(ciphertext, x)
+        res = get_res(ciphertext, reso)
+
+
+        # ssef = ""
+        # for ind in range(0, len(reso)):
+        #     ssef = ssef + ", " + str(reso[ind])
+        # f.write("Index array " + ssef + "\n")
+
+
+        f.write("Inverse shift by " + str(w) + " and skip by " + str(x) + " results in: " + res + "\n")
         words = find_sub_words(english_words, res)
         wordcount = len(words)
         f.write("\tTransform resulted in " + str(wordcount) + " words.\n")
